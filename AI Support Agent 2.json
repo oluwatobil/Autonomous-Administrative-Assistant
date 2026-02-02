@@ -1,0 +1,232 @@
+{
+  "name": "WebScraping 2",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e80429d5-a8d5-4da9-8a05-bd29232cc77c",
+      "name": "When chat message received",
+      "webhookId": "efa35df5-50ff-4861-b504-fafa129f0340"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=## Role\nYou are a professional Email Automation Agent. Your goal is to accurately extract email intent, retrieve missing contact details, and execute professional outbound communication.\n\n## Capabilities & Tools\n1. **database**: Use this tool FIRST if the user provides a name but not an email address. Query by name to retrieve the correct email.\n2. **sendEmail**: Use this tool to transmit the final formatted message.\n3. **Window Buffer Memory**: Reference previous turns to maintain context on recipients or subjects.\n\n## Standard Operating Procedure (SOP)\n1. **Analyze Intent**: Confirm the user wants to send an email.\n2. **Data Extraction & Retrieval**: \n    - Identify the Recipient Name, Subject, and Body.\n    - **CRITICAL**: If the email address is missing, call the `database` tool using the recipient's name.\n    - If the email is still not found, ask the user for clarification before proceeding.\n3. **Drafting**:\n    - Tone: Friendly, concise, and professional.\n    - Format: Include \"Hi [Name],\" a clear body, and a professional closing (e.g., \"Best regards\").\n4. **Execution**:\n    - Trigger `sendEmail` only once all fields (Recipient Email, Subject, Body) are verified.\n    - Handle tool errors by notifying the user immediately.\n5. **Confirmation**: Provide a brief confirmation message once the tool returns a success status.\n\n## Tone & Style\n- Professional and helpful.\n- Avoid flowery language; be direct and clear."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7595006c-3d89-480a-b5ad-eed4d9f44e43",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        208
+      ],
+      "id": "16c2c3f4-0501-4d69-9f79-1b4def3389e0",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ZsRUubS6grn1gW9T",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "26120667-32d7-4d02-b03a-a632056f7f23",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$fromAI(\"EmailRecipient\")}}",
+        "subject": "={{$fromAI(\"subject\")}}",
+        "emailType": "text",
+        "message": "={{$fromAI(\"emailbody\")}}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        192
+      ],
+      "id": "10232305-0376-4e85-bd6d-058663478a47",
+      "name": "Send a message in Gmail",
+      "webhookId": "6f8379b3-5196-4f09-a043-31952dcdd4e4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "V7b2zYn7Gz4YzZ3Z",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5b410ee0-9ee2-4a80-83e0-1bf927047bfe",
+              "name": "Output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        0
+      ],
+      "id": "32318190-7923-4b4d-a36e-2473e030fce3",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1MxUDttbyRtP4D_FIPNzG2DNobIJKfwHJE94LHwVPakg",
+          "mode": "list",
+          "cachedResultName": " Database ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MxUDttbyRtP4D_FIPNzG2DNobIJKfwHJE94LHwVPakg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1391593401,
+          "mode": "list",
+          "cachedResultName": "Contact Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MxUDttbyRtP4D_FIPNzG2DNobIJKfwHJE94LHwVPakg/edit#gid=1391593401"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        320,
+        304
+      ],
+      "id": "ef27cfe9-912a-428f-ab86-ae2ebeaf9d26",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "s8OkxoYPBi1c2idA",
+          "name": "Google Sheets account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "34f829ab-23e8-4ac7-856a-ca873ab327d7",
+  "meta": {
+    "instanceId": "840c6cb49638919a26e37c1002ad3a9c85b1faba8f70bce1e29b8fca3345f910"
+  },
+  "id": "VbKbg8peqrI7bp_1laGQ4",
+  "tags": []
+}
