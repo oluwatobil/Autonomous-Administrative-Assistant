@@ -21,10 +21,9 @@ The agent maintains context throughout the conversation, so you can ask it to re
 I was spending too much time doing the same manual workflow:
 1. Open Google Sheets
 2. Search for contact
-3. Copy email
-4. Switch to Gmail  
-5. Paste, write, send
-6. Repeat multiple times daily
+3. Switch to Gmail  
+4. Draft mail, edit and send
+5. Repeat multiple times daily
 
 This collapses all of that into a single conversation.
 
@@ -36,7 +35,6 @@ The workflow uses GPT-4o-mini to:
 - **Maintain memory** - Remembers the conversation context using Window Buffer Memory
 - **Execute professionally** - Drafts and sends emails with appropriate tone
 
-It's not following a rigid script—it reasons through what needs to happen based on what you tell it.
 
 ## Tech Stack
 
